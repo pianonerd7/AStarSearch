@@ -21,20 +21,17 @@ import edu.cwru.sepia.util.Direction;
 public class AstarAgent extends Agent {
 
 	class MapLocation {
-		public int x, y;
-		private MapLocation cameFrom;
+		public int x;
+		public int y;
+		public double heuristicCost;
+		public double functionCost;
+		public double nodeCost;
+		public MapLocation cameFrom;
 
 		public MapLocation(int x, int y, MapLocation cameFrom, float cost) {
 			this.x = x;
 			this.y = y;
-		}
-
-		public MapLocation getCameFrom() {
-			return cameFrom;
-		}
-
-		public void setCameFrom(MapLocation cameFrom) {
-			this.cameFrom = cameFrom;
+			this.nodeCost = (cameFrom == null) ? cost : cameFrom.nodeCost + cost;
 		}
 	}
 
@@ -300,7 +297,7 @@ public class AstarAgent extends Agent {
 		int g_scoreStart = 0;
 
 		int f_score = Integer.MAX_VALUE;
-		int f_scoreStart = Math.max(Math.abs(goal.x - start.x), Math.abs(goal.y - start.y));
+		double f_scoreStart = getHeuristic(start, goal);
 
 		openList.add(start);
 
@@ -313,10 +310,18 @@ public class AstarAgent extends Agent {
 
 			closedList.add(current);
 			
-			for (MapLocation neighbor : getNeighbors(current, resourceLocations, xExtent, yExtent))
+			for (MapLocation neighbor : getNeighbors(current, resourceLocations, xExtent, yExtent)) {
+				if (!closedList.contains(neighbor)) {
+					approx_g_score = 
+				}
+			}
 		}
 		// return an empty path
 		return new Stack<MapLocation>();
+	}
+
+	private double getHeuristic(MapLocation current, MapLocation goal) {
+		return Math.max(Math.abs(current.x - goal.x), Math.abs(current.y - goal.y));
 	}
 
 	private Stack<MapLocation> returnPath(ArrayList<MapLocation> closedList, MapLocation goal) {

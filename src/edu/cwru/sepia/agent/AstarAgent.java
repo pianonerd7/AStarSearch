@@ -293,26 +293,23 @@ public class AstarAgent extends Agent {
 		PriorityQueue<MapLocation> openList = new PriorityQueue<MapLocation>();
 		ArrayList<MapLocation> closedList = new ArrayList<MapLocation>();
 
-		int g_score = Integer.MAX_VALUE;
-		int g_scoreStart = 0;
-
-		int f_score = Integer.MAX_VALUE;
-		double f_scoreStart = getHeuristic(start, goal);
-
 		openList.add(start);
 
 		while (!openList.isEmpty()) {
 			MapLocation current = openList.remove();
 
 			if (current.equals(goal)) {
-				return returnPath(closedList, goal);
+				return returnPath(current);
 			}
 
 			closedList.add(current);
-			
+
 			for (MapLocation neighbor : getNeighbors(current, resourceLocations, xExtent, yExtent)) {
 				if (!closedList.contains(neighbor)) {
-					approx_g_score = 
+					neighbor.cameFrom = current;
+					neighbor.nodeCost = current.nodeCost + 1;
+					neighbor.heuristicCost = getHeuristic(current, goal);
+					neighbor.functionCost = neighbor.nodeCost + neighbor.heuristicCost;
 				}
 			}
 		}
@@ -324,8 +321,15 @@ public class AstarAgent extends Agent {
 		return Math.max(Math.abs(current.x - goal.x), Math.abs(current.y - goal.y));
 	}
 
-	private Stack<MapLocation> returnPath(ArrayList<MapLocation> closedList, MapLocation goal) {
+	private Stack<MapLocation> returnPath(MapLocation goal) {
 		Stack<MapLocation> path = new Stack<MapLocation>();
+		path.add(goal);
+
+		MapLocation iter = goal;
+		while (iter.cameFrom != null) {
+			path.add(iter.cameFrom);
+			iter = iter.cameFrom;
+		}
 
 		return path;
 	}

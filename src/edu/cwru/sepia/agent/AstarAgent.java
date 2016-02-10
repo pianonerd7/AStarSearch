@@ -36,7 +36,7 @@ public class AstarAgent extends Agent {
 
 		@Override
 		public int compareTo(MapLocation otherMapLocation) {
-			return (int) functionCost - (int) otherMapLocation.functionCost;
+			return this.functionCost - otherMapLocation.functionCost;
 		}
 
 		@Override
@@ -301,49 +301,84 @@ public class AstarAgent extends Agent {
 	private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent,
 			MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
 
+		// ArrayList<MapLocation> openList = new ArrayList<MapLocation>();
 		PriorityQueue<MapLocation> openList = new PriorityQueue<MapLocation>();
 		ArrayList<MapLocation> closedList = new ArrayList<MapLocation>();
 
 		start.nodeCost = 0;
 		start.heuristicCost = 0;
-		start.functionCost = start.nodeCost + start.heuristicCost;
+		start.functionCost = 0;
 
 		openList.add(start);
 
 		while (!openList.isEmpty()) {
-			MapLocation current = openList.remove();
+			MapLocation current = openList.poll();
 
 			if (current.x == goal.x && current.y == goal.y) {
 				return returnPath(current, start);
 			}
 
+			closedList.add(current);
+
 			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, xExtent, yExtent);
 
 			for (MapLocation neighbor : neighbors) {
-				if (canAddToOpenList(neighbor, openList, closedList)) {
-					neighbor.cameFrom = current;
-					neighbor.nodeCost = current.nodeCost + 1;
-					neighbor.heuristicCost = getHeuristic(neighbor, goal);
-					neighbor.functionCost = neighbor.nodeCost + neighbor.heuristicCost;
+				/*
+				 * if (canAddToOpenList(neighbor, openList, closedList)) {
+				 * neighbor.cameFrom = current; neighbor.nodeCost =
+				 * current.nodeCost + 1; neighbor.heuristicCost =
+				 * getHeuristic(neighbor, goal); neighbor.functionCost =
+				 * neighbor.nodeCost + neighbor.heuristicCost;
+				 * openList.add(neighbor); }
+				 * System.out.println(neighbor.toString());
+				 */
+				neighbor.cameFrom = current;
+				neighbor.nodeCost = current.nodeCost + 1;
+				neighbor.heuristicCost = getHeuristic(neighbor, goal);
+				neighbor.functionCost = neighbor.nodeCost + neighbor.heuristicCost;
+
+				if (closedList.contains(neighbor)) {
+					continue;
+				}
+				if (!openList.contains(neighbor)) {
+					openList.add(neighbor);
+				}
+				if ((current.nodeCost + 1) >= neighbor.nodeCost) {
+					continue;
+				} else {
 					openList.add(neighbor);
 				}
 			}
-			closedList.add(current);
 			System.out.println(current.toString());
 		}
 		System.out.println("There isn't a path to lead you to the townhall");
 		System.exit(0);
+		return null;
+	}
+
+	private MapLocation getMaxFValue(ArrayList<MapLocation> openList) {
+		MapLocation max = null;
+
+		for (MapLocation location : openList) {
+			if (max != null && max.functionCost < location.functionCost) {
+				max = location;
+			}
+		}
+
+		return max;
 	}
 
 	private boolean canAddToOpenList(MapLocation neighbor, PriorityQueue<MapLocation> openList,
 			ArrayList<MapLocation> closedList) {
-
+		/*
+		 * if (closedList.contains(neighbor)) { MapLocation closedListNode =
+		 * closedList.get(closedList.indexOf(neighbor));
+		 * 
+		 * if (neighbor.functionCost > closedListNode.functionCost) { return
+		 * false; } }
+		 */
 		if (closedList.contains(neighbor)) {
-			MapLocation closedListNode = closedList.get(closedList.indexOf(neighbor));
-
-			if (neighbor.functionCost > closedListNode.functionCost) {
-				return false;
-			}
+			return false;
 		}
 
 		for (MapLocation node : openList) {

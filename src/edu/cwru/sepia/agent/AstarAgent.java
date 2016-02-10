@@ -23,9 +23,9 @@ public class AstarAgent extends Agent {
 	class MapLocation implements Comparable<MapLocation> {
 		public int x;
 		public int y;
-		public int heuristicCost;
-		public int functionCost;
-		public int nodeCost;
+		public int heuristicCost = 0;
+		public int functionCost = 0;
+		public int nodeCost = 0;
 		public MapLocation cameFrom;
 
 		public MapLocation(int x, int y, MapLocation cameFrom, float cost) {
@@ -301,7 +301,6 @@ public class AstarAgent extends Agent {
 	private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent,
 			MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
 
-		// ArrayList<MapLocation> openList = new ArrayList<MapLocation>();
 		PriorityQueue<MapLocation> openList = new PriorityQueue<MapLocation>();
 		ArrayList<MapLocation> closedList = new ArrayList<MapLocation>();
 
@@ -311,7 +310,7 @@ public class AstarAgent extends Agent {
 
 		openList.add(start);
 
-		while (!openList.isEmpty()) {
+		while (openList.size() > 0) {
 			MapLocation current = openList.poll();
 
 			if (current.x == goal.x && current.y == goal.y) {
@@ -320,32 +319,16 @@ public class AstarAgent extends Agent {
 
 			closedList.add(current);
 
+			if (enemyFootmanLoc != null)
+				resourceLocations.add(enemyFootmanLoc);
 			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, xExtent, yExtent);
 
 			for (MapLocation neighbor : neighbors) {
-				/*
-				 * if (canAddToOpenList(neighbor, openList, closedList)) {
-				 * neighbor.cameFrom = current; neighbor.nodeCost =
-				 * current.nodeCost + 1; neighbor.heuristicCost =
-				 * getHeuristic(neighbor, goal); neighbor.functionCost =
-				 * neighbor.nodeCost + neighbor.heuristicCost;
-				 * openList.add(neighbor); }
-				 * System.out.println(neighbor.toString());
-				 */
 				neighbor.cameFrom = current;
 				neighbor.nodeCost = current.nodeCost + 1;
 				neighbor.heuristicCost = getHeuristic(neighbor, goal);
 				neighbor.functionCost = neighbor.nodeCost + neighbor.heuristicCost;
-
-				if (closedList.contains(neighbor)) {
-					continue;
-				}
-				if (!openList.contains(neighbor)) {
-					openList.add(neighbor);
-				}
-				if ((current.nodeCost + 1) >= neighbor.nodeCost) {
-					continue;
-				} else {
+				if (canAddToOpenList(neighbor, openList, closedList)) {
 					openList.add(neighbor);
 				}
 			}
@@ -356,37 +339,26 @@ public class AstarAgent extends Agent {
 		return null;
 	}
 
-	private MapLocation getMaxFValue(ArrayList<MapLocation> openList) {
-		MapLocation max = null;
-
-		for (MapLocation location : openList) {
-			if (max != null && max.functionCost < location.functionCost) {
-				max = location;
-			}
-		}
-
-		return max;
-	}
-
 	private boolean canAddToOpenList(MapLocation neighbor, PriorityQueue<MapLocation> openList,
 			ArrayList<MapLocation> closedList) {
-		/*
-		 * if (closedList.contains(neighbor)) { MapLocation closedListNode =
-		 * closedList.get(closedList.indexOf(neighbor));
-		 * 
-		 * if (neighbor.functionCost > closedListNode.functionCost) { return
-		 * false; } }
-		 */
-		if (closedList.contains(neighbor)) {
-			return false;
-		}
 
+		boolean toAdd = true;
 		for (MapLocation node : openList) {
-			if (neighbor.x == node.x && neighbor.y == node.y && neighbor.functionCost > node.functionCost) {
-				return false;
+			if (neighbor.x == node.x && neighbor.y == node.y) {
+				if (node.functionCost < neighbor.functionCost) {
+					toAdd = false;
+				}
 			}
 		}
-		return true;
+		for (MapLocation node : closedList) {
+			if (neighbor.x == node.x && neighbor.y == node.y) {
+				if (node.functionCost < neighbor.functionCost) {
+					toAdd = false;
+				}
+			}
+		}
+		return toAdd;
+
 	}
 
 	private int getHeuristic(MapLocation current, MapLocation goal) {

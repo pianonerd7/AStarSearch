@@ -36,10 +36,14 @@ public class AstarAgent extends Agent {
 
 		@Override
 		public int compareTo(MapLocation otherMapLocation) {
-			// TODO Auto-generated method stub
 			return (int) functionCost - (int) otherMapLocation.functionCost;
 		}
 
+		@Override
+		public String toString() {
+			return "x: " + x + ", y: " + y + ", f: " + functionCost + ", heuristic: " + heuristicCost + ", nodecost: "
+					+ nodeCost;
+		}
 	}
 
 	Stack<MapLocation> path;
@@ -310,15 +314,14 @@ public class AstarAgent extends Agent {
 		while (!openList.isEmpty()) {
 			MapLocation current = openList.remove();
 
-			if (current.equals(goal)) {
+			if (current.x == goal.x && current.y == goal.y) {
 				return returnPath(current);
 			}
 
-			closedList.add(current);
 			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, xExtent, yExtent);
 
 			for (MapLocation neighbor : neighbors) {
-				if (!closedList.contains(neighbor)) {
+				if (canAddToOpenList(neighbor, openList, closedList)) {
 					neighbor.cameFrom = current;
 					neighbor.nodeCost = current.nodeCost + 1;
 					neighbor.heuristicCost = getHeuristic(current, goal);
@@ -326,9 +329,10 @@ public class AstarAgent extends Agent {
 					openList.add(neighbor);
 				}
 			}
+			closedList.add(current);
+			System.out.println(current.toString());
 		}
-		System.out.println("NO PATH");
-		// return an empty path
+		System.out.println("NO PATH"); // return an empty path
 		return new Stack<MapLocation>();
 
 		/*
@@ -344,6 +348,27 @@ public class AstarAgent extends Agent {
 		 * stack.add(m5); stack.add(m6); stack.add(m7); stack.add(m8); return
 		 * stack;
 		 */
+
+	}
+
+	private boolean canAddToOpenList(MapLocation neighbor, PriorityQueue<MapLocation> openList,
+			ArrayList<MapLocation> closedList) {
+
+		if (closedList.contains(neighbor)) {
+			MapLocation closedListNode = closedList.get(closedList.indexOf(neighbor));
+
+			if (closedListNode.x == neighbor.x && closedListNode.y == neighbor.y
+					&& neighbor.functionCost > closedListNode.functionCost) {
+				return false;
+			}
+		}
+
+		for (MapLocation node : openList) {
+			if (neighbor.x == node.x && neighbor.y == node.y && neighbor.functionCost > node.functionCost) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private double getHeuristic(MapLocation current, MapLocation goal) {

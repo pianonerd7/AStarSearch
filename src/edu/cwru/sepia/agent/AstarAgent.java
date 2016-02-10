@@ -293,6 +293,11 @@ public class AstarAgent extends Agent {
 		PriorityQueue<MapLocation> openList = new PriorityQueue<MapLocation>();
 		ArrayList<MapLocation> closedList = new ArrayList<MapLocation>();
 
+		start.cameFrom = null;
+		start.nodeCost = 0;
+		start.heuristicCost = getHeuristic(start, goal);
+		start.functionCost = start.nodeCost + start.heuristicCost;
+
 		openList.add(start);
 
 		while (!openList.isEmpty()) {

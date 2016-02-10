@@ -331,8 +331,8 @@ public class AstarAgent extends Agent {
 			closedList.add(current);
 			System.out.println(current.toString());
 		}
-		System.out.println("NO PATH"); // return an empty path
-		return new Stack<MapLocation>();
+		System.out.println("There isn't a path to lead you to the townhall");
+		System.exit(0);
 	}
 
 	private boolean canAddToOpenList(MapLocation neighbor, PriorityQueue<MapLocation> openList,

@@ -23,15 +23,15 @@ public class AstarAgent extends Agent {
 	class MapLocation implements Comparable<MapLocation> {
 		public int x;
 		public int y;
-		public double heuristicCost;
-		public double functionCost;
-		public double nodeCost;
+		public int heuristicCost;
+		public int functionCost;
+		public int nodeCost;
 		public MapLocation cameFrom;
 
 		public MapLocation(int x, int y, MapLocation cameFrom, float cost) {
 			this.x = x;
 			this.y = y;
-			this.nodeCost = (cameFrom == null) ? cost : cameFrom.nodeCost + cost;
+			this.nodeCost = (cameFrom == null) ? (int) cost : cameFrom.nodeCost + (int) cost;
 		}
 
 		@Override
@@ -304,9 +304,8 @@ public class AstarAgent extends Agent {
 		PriorityQueue<MapLocation> openList = new PriorityQueue<MapLocation>();
 		ArrayList<MapLocation> closedList = new ArrayList<MapLocation>();
 
-		start.cameFrom = null;
 		start.nodeCost = 0;
-		start.heuristicCost = getHeuristic(start, goal);
+		start.heuristicCost = 0;
 		start.functionCost = start.nodeCost + start.heuristicCost;
 
 		openList.add(start);
@@ -315,7 +314,7 @@ public class AstarAgent extends Agent {
 			MapLocation current = openList.remove();
 
 			if (current.x == goal.x && current.y == goal.y) {
-				return returnPath(current);
+				return returnPath(current, start);
 			}
 
 			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, xExtent, yExtent);
@@ -324,7 +323,7 @@ public class AstarAgent extends Agent {
 				if (canAddToOpenList(neighbor, openList, closedList)) {
 					neighbor.cameFrom = current;
 					neighbor.nodeCost = current.nodeCost + 1;
-					neighbor.heuristicCost = getHeuristic(current, goal);
+					neighbor.heuristicCost = getHeuristic(neighbor, goal);
 					neighbor.functionCost = neighbor.nodeCost + neighbor.heuristicCost;
 					openList.add(neighbor);
 				}
@@ -334,21 +333,6 @@ public class AstarAgent extends Agent {
 		}
 		System.out.println("NO PATH"); // return an empty path
 		return new Stack<MapLocation>();
-
-		/*
-		 * Stack<MapLocation> stack = new Stack<MapLocation>(); MapLocation m1 =
-		 * new MapLocation(7, 1, null, 1); MapLocation m2 = new MapLocation(6,
-		 * 2, null, 1); MapLocation m3 = new MapLocation(5, 3, null, 1);
-		 * MapLocation m4 = new MapLocation(4, 4, null, 1); MapLocation m5 = new
-		 * MapLocation(3, 4, null, 1); MapLocation m6 = new MapLocation(2, 4,
-		 * null, 1); MapLocation m7 = new MapLocation(1, 3, null, 1);
-		 * MapLocation m8 = new MapLocation(0, 2, null, 1);
-		 * 
-		 * stack.add(m1); stack.add(m2); stack.add(m3); stack.add(m4);
-		 * stack.add(m5); stack.add(m6); stack.add(m7); stack.add(m8); return
-		 * stack;
-		 */
-
 	}
 
 	private boolean canAddToOpenList(MapLocation neighbor, PriorityQueue<MapLocation> openList,
@@ -357,8 +341,7 @@ public class AstarAgent extends Agent {
 		if (closedList.contains(neighbor)) {
 			MapLocation closedListNode = closedList.get(closedList.indexOf(neighbor));
 
-			if (closedListNode.x == neighbor.x && closedListNode.y == neighbor.y
-					&& neighbor.functionCost > closedListNode.functionCost) {
+			if (neighbor.functionCost > closedListNode.functionCost) {
 				return false;
 			}
 		}
@@ -371,11 +354,11 @@ public class AstarAgent extends Agent {
 		return true;
 	}
 
-	private double getHeuristic(MapLocation current, MapLocation goal) {
+	private int getHeuristic(MapLocation current, MapLocation goal) {
 		return Math.max(Math.abs(current.x - goal.x), Math.abs(current.y - goal.y));
 	}
 
-	private Stack<MapLocation> returnPath(MapLocation goal) {
+	private Stack<MapLocation> returnPath(MapLocation goal, MapLocation start) {
 		Stack<MapLocation> path = new Stack<MapLocation>();
 
 		MapLocation iter = goal;

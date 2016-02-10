@@ -347,7 +347,7 @@ public class AstarAgent extends Agent {
 
 		openList.add(start);
 
-		while (openList.size() > 0) {
+		while (!openList.isEmpty()) {
 			MapLocation current = openList.poll();
 
 			if (current.x == goal.x && current.y == goal.y) {

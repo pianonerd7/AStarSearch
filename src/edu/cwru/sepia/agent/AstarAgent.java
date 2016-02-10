@@ -222,13 +222,16 @@ public class AstarAgent extends Agent {
 		Unit.UnitView meUnit = state.getUnit(footmanID);
 		Unit.UnitView enemyUnit = state.getUnit(enemyFootmanID);
 
+		if (enemyUnit == null) {
+			return false;
+		}
+
 		MapLocation me = new MapLocation(meUnit.getXPosition(), meUnit.getYPosition(), null, 0);
 		MapLocation enemy = new MapLocation(enemyUnit.getXPosition(), enemyUnit.getYPosition(), null, 0);
 
-		if (minDistance(me, enemy) > 3) {
+		if ((minDistance(me, enemy) < 3)) {
 			return true;
 		}
-
 		return false;
 	}
 
@@ -335,9 +338,7 @@ public class AstarAgent extends Agent {
 
 			closedList.add(current);
 
-			if (enemyFootmanLoc != null)
-				resourceLocations.add(enemyFootmanLoc);
-			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, xExtent, yExtent);
+			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, enemyFootmanLoc, xExtent, yExtent);
 
 			for (MapLocation neighbor : neighbors) {
 				neighbor.cameFrom = current;
@@ -395,8 +396,8 @@ public class AstarAgent extends Agent {
 		return path;
 	}
 
-	private List<MapLocation> getNeighbors(MapLocation current, Set<MapLocation> resourceLocations, int xExtent,
-			int yExtent) {
+	private List<MapLocation> getNeighbors(MapLocation current, Set<MapLocation> resourceLocations,
+			MapLocation enemyFootmanLoc, int xExtent, int yExtent) {
 
 		ArrayList<MapLocation> neighbors = new ArrayList<MapLocation>();
 
@@ -421,7 +422,11 @@ public class AstarAgent extends Agent {
 			for (MapLocation resource : resourceLocations) {
 				if (resource.x == potentialNeighbor.x && resource.y == potentialNeighbor.y) {
 					neighbors.remove(potentialNeighbor);
+					continue;
 				}
+			}
+			if (enemyFootmanLoc.x == potentialNeighbor.x && enemyFootmanLoc.y == potentialNeighbor.y) {
+				neighbors.remove(potentialNeighbor);
 			}
 		}
 		return neighbors;

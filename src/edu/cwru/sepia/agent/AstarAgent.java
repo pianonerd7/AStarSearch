@@ -366,6 +366,8 @@ public class AstarAgent extends Agent {
 			path.add(iter.cameFrom);
 			iter = iter.cameFrom;
 		}
+		// to remove start
+		path.pop();
 
 		return path;
 	}

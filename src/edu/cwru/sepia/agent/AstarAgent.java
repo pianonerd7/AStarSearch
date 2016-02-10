@@ -235,49 +235,27 @@ public class AstarAgent extends Agent {
 		return false;
 	}
 
-	// if both -, math.abs, get their difference
-	// if both +, math.abs, get their diff
-	// if one + and one -, add positive to math.abs of negative
-	private int minDistance(MapLocation me, MapLocation enemy) {
+	/**
+	 * Use the pythagorean theorem to calculate distance between me and enemy
+	 * 
+	 * @param me
+	 *            My current MapLocation
+	 * @param enemy
+	 *            The enemy's current MapLocation
+	 * @return The distance between me and the enemy
+	 */
+	private double minDistance(MapLocation me, MapLocation enemy) {
 
 		int me_x = me.x;
 		int me_y = me.y;
 		int enemy_x = enemy.x;
 		int enemy_y = enemy.y;
 
-		int dist_x = 0;
-		int dist_y = 0;
+		double a = Math.pow(enemy_x - me_x, 2);
+		double b = Math.pow(enemy_y - me_y, 2);
+		double c = Math.sqrt(a + b);
 
-		System.out.println("me: " + me_x + " , " + me_y);
-		System.out.println("enemy: " + enemy_x + " , " + enemy_y);
-
-		if (me_x <= 0 && enemy_x <= 0) {
-			dist_x = Math.abs(me_x - enemy_x);
-		} else if (me_x > 0 && enemy_x > 0) {
-			dist_x = Math.abs(me_x - enemy_x);
-		} else if (me_x < 0 || enemy_x < 0) {
-			if (me_x < 0) {
-				dist_x = enemy_x + Math.abs(me_x);
-			} else {
-				dist_x = me_x + Math.abs(enemy_x);
-			}
-		}
-
-		if (me_y <= 0 && enemy_y <= 0) {
-			dist_y = Math.abs(me_y - enemy_y);
-		} else if (me_y > 0 && enemy_y > 0) {
-			dist_y = Math.abs(me_y - enemy_y);
-		} else if (me_y < 0 || enemy_y < 0) {
-			if (me_y < 0) {
-				dist_y = enemy_y + Math.abs(me_y);
-			} else {
-				dist_y = me_y + Math.abs(enemy_y);
-			}
-		} else {
-			dist_y = 0;
-		}
-
-		return Math.min(dist_x, dist_y);
+		return c;
 	}
 
 	/**

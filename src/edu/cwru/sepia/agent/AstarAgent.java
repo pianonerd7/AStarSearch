@@ -20,7 +20,7 @@ import edu.cwru.sepia.util.Direction;
 
 public class AstarAgent extends Agent {
 
-	class MapLocation {
+	class MapLocation implements Comparable<MapLocation> {
 		public int x;
 		public int y;
 		public double heuristicCost;
@@ -33,6 +33,13 @@ public class AstarAgent extends Agent {
 			this.y = y;
 			this.nodeCost = (cameFrom == null) ? cost : cameFrom.nodeCost + cost;
 		}
+
+		@Override
+		public int compareTo(MapLocation otherMapLocation) {
+			// TODO Auto-generated method stub
+			return (int) functionCost - (int) otherMapLocation.functionCost;
+		}
+
 	}
 
 	Stack<MapLocation> path;
@@ -308,18 +315,35 @@ public class AstarAgent extends Agent {
 			}
 
 			closedList.add(current);
+			List<MapLocation> neighbors = getNeighbors(current, resourceLocations, xExtent, yExtent);
 
-			for (MapLocation neighbor : getNeighbors(current, resourceLocations, xExtent, yExtent)) {
+			for (MapLocation neighbor : neighbors) {
 				if (!closedList.contains(neighbor)) {
 					neighbor.cameFrom = current;
 					neighbor.nodeCost = current.nodeCost + 1;
 					neighbor.heuristicCost = getHeuristic(current, goal);
 					neighbor.functionCost = neighbor.nodeCost + neighbor.heuristicCost;
+					openList.add(neighbor);
 				}
 			}
 		}
+		System.out.println("NO PATH");
 		// return an empty path
 		return new Stack<MapLocation>();
+
+		/*
+		 * Stack<MapLocation> stack = new Stack<MapLocation>(); MapLocation m1 =
+		 * new MapLocation(7, 1, null, 1); MapLocation m2 = new MapLocation(6,
+		 * 2, null, 1); MapLocation m3 = new MapLocation(5, 3, null, 1);
+		 * MapLocation m4 = new MapLocation(4, 4, null, 1); MapLocation m5 = new
+		 * MapLocation(3, 4, null, 1); MapLocation m6 = new MapLocation(2, 4,
+		 * null, 1); MapLocation m7 = new MapLocation(1, 3, null, 1);
+		 * MapLocation m8 = new MapLocation(0, 2, null, 1);
+		 * 
+		 * stack.add(m1); stack.add(m2); stack.add(m3); stack.add(m4);
+		 * stack.add(m5); stack.add(m6); stack.add(m7); stack.add(m8); return
+		 * stack;
+		 */
 	}
 
 	private double getHeuristic(MapLocation current, MapLocation goal) {
@@ -356,13 +380,18 @@ public class AstarAgent extends Agent {
 		neighbors.add(new MapLocation(x, y + 1, current, 1));
 		neighbors.add(new MapLocation(x + 1, y + 1, current, 1));
 
-		for (MapLocation potentialNeighbor : neighbors) {
+		for (MapLocation potentialNeighbor : new ArrayList<MapLocation>(neighbors)) {
 			if (potentialNeighbor.x > xExtent || potentialNeighbor.x < 0 || potentialNeighbor.y > yExtent
-					|| potentialNeighbor.y < 0 || resourceLocations.contains(potentialNeighbor)) {
+					|| potentialNeighbor.y < 0) {
 				neighbors.remove(potentialNeighbor);
+				continue;
+			}
+			for (MapLocation resource : resourceLocations) {
+				if (resource.x == potentialNeighbor.x && resource.y == potentialNeighbor.y) {
+					neighbors.remove(potentialNeighbor);
+				}
 			}
 		}
-
 		return neighbors;
 	}
 

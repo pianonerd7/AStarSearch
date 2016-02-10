@@ -229,15 +229,55 @@ public class AstarAgent extends Agent {
 		MapLocation me = new MapLocation(meUnit.getXPosition(), meUnit.getYPosition(), null, 0);
 		MapLocation enemy = new MapLocation(enemyUnit.getXPosition(), enemyUnit.getYPosition(), null, 0);
 
-		if ((minDistance(me, enemy) < 3)) {
+		if ((minDistance(me, enemy) < 2)) {
 			return true;
 		}
 		return false;
 	}
 
+	// if both -, math.abs, get their difference
+	// if both +, math.abs, get their diff
+	// if one + and one -, add positive to math.abs of negative
 	private int minDistance(MapLocation me, MapLocation enemy) {
 
-		return Math.min(Math.abs(me.x - enemy.x), Math.abs(me.y - enemy.y));
+		int me_x = me.x;
+		int me_y = me.y;
+		int enemy_x = enemy.x;
+		int enemy_y = enemy.y;
+
+		int dist_x = 0;
+		int dist_y = 0;
+
+		System.out.println("me: " + me_x + " , " + me_y);
+		System.out.println("enemy: " + enemy_x + " , " + enemy_y);
+
+		if (me_x <= 0 && enemy_x <= 0) {
+			dist_x = Math.abs(me_x - enemy_x);
+		} else if (me_x > 0 && enemy_x > 0) {
+			dist_x = Math.abs(me_x - enemy_x);
+		} else if (me_x < 0 || enemy_x < 0) {
+			if (me_x < 0) {
+				dist_x = enemy_x + Math.abs(me_x);
+			} else {
+				dist_x = me_x + Math.abs(enemy_x);
+			}
+		}
+
+		if (me_y <= 0 && enemy_y <= 0) {
+			dist_y = Math.abs(me_y - enemy_y);
+		} else if (me_y > 0 && enemy_y > 0) {
+			dist_y = Math.abs(me_y - enemy_y);
+		} else if (me_y < 0 || enemy_y < 0) {
+			if (me_y < 0) {
+				dist_y = enemy_y + Math.abs(me_y);
+			} else {
+				dist_y = me_y + Math.abs(enemy_y);
+			}
+		} else {
+			dist_y = 0;
+		}
+
+		return Math.min(dist_x, dist_y);
 	}
 
 	/**

@@ -377,7 +377,6 @@ public class AstarAgent extends Agent {
 
 	private Stack<MapLocation> returnPath(MapLocation goal) {
 		Stack<MapLocation> path = new Stack<MapLocation>();
-		path.add(goal);
 
 		MapLocation iter = goal;
 		while (iter.cameFrom != null) {

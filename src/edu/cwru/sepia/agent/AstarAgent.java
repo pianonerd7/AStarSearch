@@ -218,7 +218,23 @@ public class AstarAgent extends Agent {
 	 */
 	private boolean shouldReplanPath(State.StateView state, History.HistoryView history,
 			Stack<MapLocation> currentPath) {
+
+		Unit.UnitView meUnit = state.getUnit(footmanID);
+		Unit.UnitView enemyUnit = state.getUnit(enemyFootmanID);
+
+		MapLocation me = new MapLocation(meUnit.getXPosition(), meUnit.getYPosition(), null, 0);
+		MapLocation enemy = new MapLocation(enemyUnit.getXPosition(), enemyUnit.getYPosition(), null, 0);
+
+		if (minDistance(me, enemy) > 3) {
+			return true;
+		}
+
 		return false;
+	}
+
+	private int minDistance(MapLocation me, MapLocation enemy) {
+
+		return Math.min(Math.abs(me.x - enemy.x), Math.abs(me.y - enemy.y));
 	}
 
 	/**

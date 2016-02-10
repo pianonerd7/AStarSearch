@@ -418,7 +418,7 @@ public class AstarAgent extends Agent {
 			MapLocation enemyFootmanLoc, int xExtent, int yExtent) {
 
 		ArrayList<MapLocation> neighbors = new ArrayList<MapLocation>();
-
+		boolean deleted = false;
 		int x = current.x;
 		int y = current.y;
 
@@ -432,18 +432,20 @@ public class AstarAgent extends Agent {
 		neighbors.add(new MapLocation(x + 1, y + 1, current, 1));
 
 		for (MapLocation potentialNeighbor : new ArrayList<MapLocation>(neighbors)) {
+			deleted = false;
 			if (potentialNeighbor.x > xExtent || potentialNeighbor.x < 0 || potentialNeighbor.y > yExtent
 					|| potentialNeighbor.y < 0) {
 				neighbors.remove(potentialNeighbor);
-				continue;
+				deleted = true;
 			}
 			for (MapLocation resource : resourceLocations) {
-				if (resource.x == potentialNeighbor.x && resource.y == potentialNeighbor.y) {
+				if (!deleted && resource.x == potentialNeighbor.x && resource.y == potentialNeighbor.y) {
 					neighbors.remove(potentialNeighbor);
-					continue;
+					deleted = true;
 				}
 			}
-			if (enemyFootmanLoc.x == potentialNeighbor.x && enemyFootmanLoc.y == potentialNeighbor.y) {
+			if (enemyFootmanLoc != null && !deleted && enemyFootmanLoc.x == potentialNeighbor.x
+					&& enemyFootmanLoc.y == potentialNeighbor.y) {
 				neighbors.remove(potentialNeighbor);
 			}
 		}

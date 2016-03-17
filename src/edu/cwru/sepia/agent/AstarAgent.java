@@ -3,11 +3,11 @@ package edu.cwru.sepia.agent;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -338,7 +338,7 @@ public class AstarAgent extends Agent {
 	private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent,
 			MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
 
-		PriorityQueue<MapLocation> openList = new PriorityQueue<MapLocation>();
+		ArrayList<MapLocation> openList = new ArrayList<MapLocation>();
 		ArrayList<MapLocation> closedList = new ArrayList<MapLocation>();
 
 		start.nodeCost = 0;
@@ -348,9 +348,12 @@ public class AstarAgent extends Agent {
 		openList.add(start);
 
 		while (!openList.isEmpty()) {
-			MapLocation current = openList.poll();
+			Collections.sort(openList);
+			MapLocation current = openList.get(0);
+			openList.remove(0);
 
 			if (current.x == goal.x && current.y == goal.y) {
+
 				return returnPath(current, start);
 			}
 
@@ -367,14 +370,12 @@ public class AstarAgent extends Agent {
 					openList.add(neighbor);
 				}
 			}
-			System.out.println(current.toString());
 		}
-		System.out.println("There isn't a path to lead you to the townhall");
 		System.exit(0);
 		return null;
 	}
 
-	private boolean canAddToOpenList(MapLocation neighbor, PriorityQueue<MapLocation> openList,
+	private boolean canAddToOpenList(MapLocation neighbor, ArrayList<MapLocation> openList,
 			ArrayList<MapLocation> closedList) {
 
 		boolean toAdd = true;
